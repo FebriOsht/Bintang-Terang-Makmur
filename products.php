@@ -154,6 +154,7 @@ $wa_number = "628123456789";
                     <div class="flip-card-back">
                         <p>Jasa Cutting ACP, ANBOARD, AKCRYLIC, DLL</p>
                         <a class="btn" href="https://wa.me/628118060777<?= $wa_number ?>?text=Halo%20Bintang%20Terang%20Makmur,%20saya%20ingin%20memesan%20JASA%20CUTTING">Beli Sekarang</a>
+                        <a class="btn" href="jasacutting/bayacutting.html">Hitung Biaya Cutting</a>
                     </div>
                 </div>
             </div>

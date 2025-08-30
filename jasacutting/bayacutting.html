@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biaya Jasa Cutting - Bintang Terang Makmur</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: url('../assets/img/Cutting.png') no-repeat center center/cover;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #fff;
+      backdrop-filter: blur(4px);
+    }
+
+    .container {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 25px;
+      border-radius: 12px;
+      width: 400px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      animation: fadeIn 1s ease;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 1.8em;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      text-align: left;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: none;
+      border-radius: 6px;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 15px;
+      border: none;
+      background: #00c853;
+      color: white;
+      font-size: 1em;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #00b342;
+    }
+
+    .loading-bar {
+      margin-top: 15px;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      overflow: hidden;
+      display: none;
+    }
+
+    .loading-bar-inner {
+      height: 100%;
+      width: 0;
+      background: #00c853;
+      animation: loading 1.5s linear forwards;
+    }
+
+    #error {
+      color: #ff5252;
+      margin-top: 10px;
+    }
+
+    #result {
+      margin-top: 15px;
+      font-size: 1.2em;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(20px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    @keyframes loading {
+      from {width: 0;}
+      to {width: 100%;}
+    }
+
+    .gambar-input {
+      background: rgba(255,255,255,0.05);
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Biaya Jasa Cutting - Bintang Terang Makmur</h1>
+
+    <label>Jumlah Gambar</label>
+    <input type="number" id="jumlahGambar" min="1" placeholder="Contoh: 2" oninput="buatInputUkuran()">
+
+    <div id="inputUkuranContainer"></div>
+
+    <button onclick="hitungBiaya()">Hitung Biaya</button>
+    <button onclick="clearForm()">Reset</button>
+
+    <div class="loading-bar" id="loadingBar">
+      <div class="loading-bar-inner"></div>
+    </div>
+
+    <div id="error"></div>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const hargaPerM2 = 180000;
+    const fullSheetPrice = 540000;
+    const maxLebar = 120;
+    const maxTinggi = 240;
+
+    function buatInputUkuran() {
+      const jumlah = parseInt(document.getElementById('jumlahGambar').value);
+      const container = document.getElementById('inputUkuranContainer');
+      container.innerHTML = '';
+
+      if (isNaN(jumlah) || jumlah < 1) return;
+
+      for (let i = 1; i <= jumlah; i++) {
+        container.innerHTML += `
+          <div class="gambar-input">
+            <label>Gambar ${i} - Lebar (cm)</label>
+            <input type="number" id="lebar${i}" min="1" placeholder="Lebar Gambar ${i}">
+            <label>Gambar ${i} - Tinggi (cm)</label>
+            <input type="number" id="tinggi${i}" min="1" placeholder="Tinggi Gambar ${i}">
+          </div>
+        `;
+      }
+    }
+
+    function hitungBiaya() {
+      const jumlah = parseInt(document.getElementById('jumlahGambar').value);
+      const errorEl = document.getElementById('error');
+      const resultEl = document.getElementById('result');
+      const loadingBar = document.getElementById('loadingBar');
+      errorEl.textContent = '';
+      resultEl.textContent = '';
+
+      if (isNaN(jumlah) || jumlah < 1) {
+        errorEl.textContent = 'Mohon masukkan jumlah gambar yang valid.';
+        return;
+      }
+
+      let total = 0;
+      for (let i = 1; i <= jumlah; i++) {
+        const lebar = parseFloat(document.getElementById(`lebar${i}`).value);
+        const tinggi = parseFloat(document.getElementById(`tinggi${i}`).value);
+
+        if (isNaN(lebar) || isNaN(tinggi) || lebar <= 0 || tinggi <= 0) {
+          errorEl.textContent = `Ukuran gambar ${i} belum diisi dengan benar.`;
+          return;
+        }
+
+        if (lebar > maxLebar || tinggi > maxTinggi) {
+          errorEl.textContent = `Ukuran gambar ${i} melebihi batas maksimum (${maxLebar} x ${maxTinggi} cm).`;
+          return;
+        }
+
+        let biaya = (lebar === 120 && tinggi === 240 && jumlah === 1) 
+          ? fullSheetPrice 
+          : (lebar / 100) * (tinggi / 100) * hargaPerM2;
+
+        total += biaya;
+      }
+
+      loadingBar.style.display = 'block';
+      const barInner = loadingBar.querySelector('.loading-bar-inner');
+      barInner.style.width = '0';
+      barInner.style.animation = 'none';
+      void barInner.offsetWidth;
+      barInner.style.animation = 'loading 1.5s linear forwards';
+
+      setTimeout(() => {
+        resultEl.textContent = `Total Biaya: Rp ${total.toLocaleString('id-ID')}`;
+        loadingBar.style.display = 'none';
+      }, 1500);
+    }
+
+    function clearForm() {
+      document.getElementById('jumlahGambar').value = '';
+      document.getElementById('inputUkuranContainer').innerHTML = '';
+      document.getElementById('result').textContent = '';
+      document.getElementById('error').textContent = '';
+    }
+  </script>
+
+</body>
+</html>
